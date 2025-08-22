@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.util.*;
 
@@ -7,9 +8,9 @@ import java.util.*;
  */
 public class ExpenseTracker {
     // List to store all expenses
-    private List<Expense> expenses = new ArrayList<>();
+    private final List<Expense> expenses = new ArrayList<>();
     // Scanner for user input
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * Main method to start the application.
@@ -30,7 +31,9 @@ public class ExpenseTracker {
             System.out.println("2. List All Expenses");
             System.out.println("3. Filter by Category");
             System.out.println("4. Show Total by Category");
-            System.out.println("5. Save & Exit");
+            System.out.println("5. Filter by Date Range");
+            System.out.println("6. Export Expenses to CSV");
+            System.out.println("7. Save & Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -39,7 +42,9 @@ public class ExpenseTracker {
                 case 2: listExpenses(); break;
                 case 3: filterByCategory(); break;
                 case 4: showTotalByCategory(); break;
-                case 5: saveExpenses(); System.out.println("Goodbye!"); return;
+                case 5: filterByDateRange(); break;
+                case 6: exportToCSV(); break;
+                case 7: saveExpenses(); System.out.println("Goodbye!"); return;
                 default: System.out.println("Invalid option. Try again.");
             }
         }
@@ -136,6 +141,41 @@ public class ExpenseTracker {
         System.out.println("\nTotal Expenses by Category:");
         for (Expense.Category cat : totals.keySet()) {
             System.out.println(cat + ": Rs." + totals.get(cat));
+        }
+    }
+
+    /**
+     * Filters expenses by a date range and displays them.
+     */
+    private void filterByDateRange() {
+        System.out.print("Enter start date (YYYY-MM-DD): ");
+        String startDate = scanner.nextLine();
+        System.out.print("Enter end date (YYYY-MM-DD): ");
+        String endDate = scanner.nextLine();
+        boolean found = false;
+        for (Expense e : expenses) {
+            if (e.getDate().compareTo(startDate) >= 0 && e.getDate().compareTo(endDate) <= 0) {
+                System.out.println(e);
+                found = true;
+            }
+        }
+        if (!found) System.out.println("No expenses found in this date range.");
+    }
+
+    /**
+     * Exports all expenses to a CSV file.
+     */
+    private void exportToCSV() {
+        System.out.print("Enter CSV file name (e.g., expenses.csv): ");
+        String fileName = scanner.nextLine();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            pw.println("Amount,Category,Date,Description");
+            for (Expense e : expenses) {
+                pw.println(e.getAmount() + "," + e.getCategory().name() + "," + e.getDate() + "," + e.getDescription().replace(",", " "));
+            }
+            System.out.println("Expenses exported to " + fileName);
+        } catch (IOException ex) {
+            System.out.println("Error exporting to CSV: " + ex.getMessage());
         }
     }
 
